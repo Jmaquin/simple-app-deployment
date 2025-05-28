@@ -47,7 +47,7 @@ This document outlines the infrastructure architecture for a secure application 
   - Encryption at rest for all data stores (S3, RDS)
   - TLS for all data in transit
   - KMS for key management
-  - HIPAA-compliant configurations
+  - Compliance configurations
 
 - **Access Control**:
   - IAM roles with least privilege principle
