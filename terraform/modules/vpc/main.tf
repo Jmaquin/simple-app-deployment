@@ -5,10 +5,10 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "public" {
-  count             = length(var.availability_zones)
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index)
-  availability_zone = var.availability_zones[count.index]
+  count                   = length(var.availability_zones)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
+  availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 }
 
@@ -24,7 +24,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.main]
 }
 
@@ -113,11 +113,11 @@ resource "aws_iam_role_policy" "flow_log" {
           "logs:DescribeLogGroups",
           "logs:DescribeLogStreams"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
-					aws_cloudwatch_log_group.flow_log.arn,
-					"${aws_cloudwatch_log_group.flow_log.arn}:*"
-				]
+          aws_cloudwatch_log_group.flow_log.arn,
+          "${aws_cloudwatch_log_group.flow_log.arn}:*"
+        ]
       }
     ]
   })
