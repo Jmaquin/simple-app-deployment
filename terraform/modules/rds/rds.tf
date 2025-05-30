@@ -11,7 +11,6 @@ resource "aws_security_group" "rds" {
     description = "Allow PostgreSQL traffic from within VPC"
   }
 
-  # Allow DNS lookups within VPC
   egress {
     from_port   = 53
     to_port     = 53
@@ -20,7 +19,6 @@ resource "aws_security_group" "rds" {
     description = "Allow DNS lookups within VPC"
   }
 
-  # If PostgreSQL replication is needed
   egress {
     from_port   = 5432
     to_port     = 5432
@@ -30,63 +28,16 @@ resource "aws_security_group" "rds" {
   }
 }
 
-data "aws_vpc" "selected" {
-  id = var.vpc_id
-}
-
 resource "aws_db_subnet_group" "main" {
   name        = "${var.project_name}-${var.environment}-db-subnet-group"
   description = "DB subnet group for ${var.project_name} ${var.environment}"
   subnet_ids  = var.private_subnet_ids
 }
 
-resource "aws_kms_key" "rds" {
-  description             = "KMS key for RDS encryption for ${var.project_name} ${var.environment}"
-  deletion_window_in_days = 10
-  enable_key_rotation     = true
-}
-
-resource "aws_kms_alias" "rds" {
-  name          = "alias/${var.project_name}-${var.environment}-rds-kms-key"
-  target_key_id = aws_kms_key.rds.key_id
-}
-
 resource "random_password" "rds" {
   count   = var.db_password == "" ? 1 : 0
   length  = 16
   special = false
-}
-
-resource "aws_secretsmanager_secret" "rds" {
-  name        = "${var.project_name}/${var.environment}/rds"
-  description = "RDS credentials for ${var.project_name} ${var.environment}"
-  kms_key_id  = aws_kms_key.rds.arn
-}
-
-resource "aws_secretsmanager_secret_version" "prod_rds" {
-  count     = var.environment == "prod" ? 1 : 0
-  secret_id = aws_secretsmanager_secret.rds.id
-  secret_string = jsonencode({
-    username = var.db_username
-    password = var.db_password == "" ? random_password.rds[0].result : var.db_password
-    engine   = "postgres"
-    host     = aws_db_instance.prod[0].address
-    port     = 5432
-    dbname   = var.db_name
-  })
-}
-
-resource "aws_secretsmanager_secret_version" "non_prod_rds" {
-  count     = var.environment != "prod" ? 1 : 0
-  secret_id = aws_secretsmanager_secret.rds.id
-  secret_string = jsonencode({
-    username = var.db_username
-    password = var.db_password == "" ? random_password.rds[0].result : var.db_password
-    engine   = "postgres"
-    host     = aws_db_instance.non_prod[0].address
-    port     = 5432
-    dbname   = var.db_name
-  })
 }
 
 resource "aws_db_instance" "prod" {
@@ -191,26 +142,4 @@ resource "aws_db_parameter_group" "main" {
     name  = "log_min_duration_statement"
     value = "1000"
   }
-}
-
-resource "aws_iam_role" "rds_monitoring" {
-  name = "${var.project_name}-${var.environment}-rds-monitoring-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "monitoring.rds.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "rds_monitoring" {
-  role       = aws_iam_role.rds_monitoring.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
