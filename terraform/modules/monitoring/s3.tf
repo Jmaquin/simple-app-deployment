@@ -1,9 +1,5 @@
 resource "aws_s3_bucket" "logs" {
   bucket = "${var.project_name}-${var.environment}-logs"
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-logs"
-  }
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "logs" {

@@ -100,10 +100,6 @@ resource "aws_cloudwatch_dashboard" "main" {
 resource "aws_cloudwatch_log_group" "application" {
   name              = "/application/${var.project_name}-${var.environment}"
   retention_in_days = 30
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-application-logs"
-  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_cpu" {
@@ -122,10 +118,6 @@ resource "aws_cloudwatch_metric_alarm" "ecs_cpu" {
   dimensions = {
     ClusterName = "${var.project_name}-${var.environment}-cluster"
     ServiceName = "${var.project_name}-${var.environment}-backend-api"
-  }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-ecs-cpu-alarm"
   }
 }
 
@@ -146,10 +138,6 @@ resource "aws_cloudwatch_metric_alarm" "ecs_memory" {
     ClusterName = "${var.project_name}-${var.environment}-cluster"
     ServiceName = "${var.project_name}-${var.environment}-backend-api"
   }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-ecs-memory-alarm"
-  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
@@ -167,10 +155,6 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
 
   dimensions = {
     DBInstanceIdentifier = "${var.project_name}-${var.environment}-db"
-  }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-rds-cpu-alarm"
   }
 }
 
@@ -190,10 +174,6 @@ resource "aws_cloudwatch_metric_alarm" "rds_storage" {
   dimensions = {
     DBInstanceIdentifier = "${var.project_name}-${var.environment}-db"
   }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-rds-storage-alarm"
-  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
@@ -211,10 +191,6 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
 
   dimensions = {
     LoadBalancer = "${var.project_name}-${var.environment}-backend-api-alb"
-  }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-alb-5xx-alarm"
   }
 }
 

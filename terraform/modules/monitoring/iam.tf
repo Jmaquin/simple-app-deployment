@@ -13,10 +13,6 @@ resource "aws_iam_role" "logs_export" {
       }
     ]
   })
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-logs-export-role"
-  }
 }
 
 resource "aws_iam_policy" "logs_export" {
