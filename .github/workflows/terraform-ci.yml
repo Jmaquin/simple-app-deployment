@@ -85,4 +85,32 @@ jobs:
         run: terraform test
         working-directory: ./terraform/modules/rds
 
+  test-ecs:
+    name: Test ECS Module
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false
+        working-directory: ./terraform/modules/ecs
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+        working-directory: ./terraform/modules/ecs
+
+      - name: Run ECS Module Tests
+        id: test
+        run: terraform test
+        working-directory: ./terraform/modules/ecs
+
 
