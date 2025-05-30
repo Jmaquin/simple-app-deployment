@@ -103,15 +103,6 @@ variable "region" {
   default     = "us-east-1"
 }
 
-variable "certificate_arn" {
-  description = "ARN of the ACM certificate for HTTPS"
-  type        = string
-}
-
-variable "alb_logs_bucket" {
-  description = "S3 bucket for ALB access logs"
-  type        = string
-}
 
 variable "create_dns_record" {
   description = "Whether to create a DNS record for the service"

@@ -9,7 +9,7 @@ resource "aws_lb" "main" {
   drop_invalid_header_fields = true
 
   access_logs {
-    bucket  = var.alb_logs_bucket
+    bucket  = aws_s3_bucket.alb_logs.id
     prefix  = "${var.project_name}-${var.environment}-${var.service_name}-alb"
     enabled = true
   }
@@ -20,7 +20,7 @@ resource "aws_lb_listener" "https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = var.certificate_arn
+  certificate_arn   = var.create_dns_record ? aws_acm_certificate_validation.main[0].certificate_arn : aws_acm_certificate.main.arn
 
   default_action {
     type             = "forward"
@@ -64,7 +64,7 @@ resource "aws_lb_target_group" "main" {
 resource "aws_route53_record" "main" {
   count   = var.create_dns_record ? 1 : 0
   zone_id = var.dns_zone_id
-  name    = var.dns_name
+  name    = aws_acm_certificate.main.domain_name
   type    = "A"
 
   alias {

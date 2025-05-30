@@ -34,6 +34,12 @@ mock_provider "aws" {
       arn = "arn:aws:elasticloadbalancing:eu-west-3:123456789012:targetgroup/alb-tg/b133de1b7c64a11f"
     }
   }
+
+  mock_resource "aws_acm_certificate" {
+    defaults = {
+      arn = "arn:aws:acm:eu-west-3:444455556666:certificate/certificate_ID"
+    }
+  }
 }
 
 run "security_group_configuration" {
@@ -48,8 +54,6 @@ run "security_group_configuration" {
     service_name       = "app"
     container_image    = "nginx:latest"
     container_port     = 80
-    certificate_arn    = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef123456"
-    alb_logs_bucket    = "test-project-test-alb-logs"
     region             = "us-east-1"
   }
 
@@ -154,8 +158,6 @@ run "iam_role_configuration" {
     service_name       = "app"
     container_image    = "nginx:latest"
     container_port     = 80
-    certificate_arn    = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef123456"
-    alb_logs_bucket    = "test-project-test-alb-logs"
     region             = "us-east-1"
   }
 
@@ -215,8 +217,6 @@ run "custom_container_port" {
     service_name       = "app"
     container_image    = "nginx:latest"
     container_port     = 8080 # Custom container port
-    certificate_arn    = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef123456"
-    alb_logs_bucket    = "test-project-test-alb-logs"
     region             = "us-east-1"
   }
 

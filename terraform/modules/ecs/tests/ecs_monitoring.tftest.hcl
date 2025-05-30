@@ -28,6 +28,12 @@ mock_provider "aws" {
       arn = "arn:aws:elasticloadbalancing:eu-west-3:123456789012:targetgroup/alb-tg/b133de1b7c64a11f"
     }
   }
+
+  mock_resource "aws_acm_certificate" {
+    defaults = {
+      arn = "arn:aws:acm:eu-west-3:444455556666:certificate/certificate_ID"
+    }
+  }
 }
 
 run "cloudwatch_log_group_configuration" {
@@ -42,8 +48,6 @@ run "cloudwatch_log_group_configuration" {
     service_name       = "app"
     container_image    = "nginx:latest"
     container_port     = 80
-    certificate_arn    = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef123456"
-    alb_logs_bucket    = "test-project-test-alb-logs"
     region             = "us-east-1"
   }
 
@@ -86,8 +90,6 @@ run "alb_access_logs_configuration" {
     service_name       = "app"
     container_image    = "nginx:latest"
     container_port     = 80
-    certificate_arn    = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef123456"
-    alb_logs_bucket    = "test-project-test-alb-logs"
     region             = "us-east-1"
   }
 
@@ -95,7 +97,7 @@ run "alb_access_logs_configuration" {
   assert {
     condition = alltrue([
       aws_lb.main.access_logs[0].enabled == true,
-      aws_lb.main.access_logs[0].bucket == var.alb_logs_bucket,
+      aws_lb.main.access_logs[0].bucket == aws_s3_bucket.alb_logs.id,
       aws_lb.main.access_logs[0].prefix == "test-project-test-app-alb"
     ])
     error_message = "ALB access logs are not correctly configured"
@@ -112,8 +114,6 @@ run "container_insights_configuration" {
     service_name       = "app"
     container_image    = "nginx:latest"
     container_port     = 80
-    certificate_arn    = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef123456"
-    alb_logs_bucket    = "test-project-test-alb-logs"
     region             = "us-east-1"
   }
 
