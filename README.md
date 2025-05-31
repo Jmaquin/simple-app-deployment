@@ -90,3 +90,20 @@ db_password = "your-secure-password"
 terraform plan -var-file=environments/dev.tfvars
 terraform apply -var-file=environments/dev.tfvars
 ```
+
+## Tradeoffs & Limitations
+
+- **Simplified AI Component**: The current implementation focuses on the backend API and doesn't include specialized GPU instances for AI workloads.
+- **Frontend Deployment**: The frontend deployment is not included in this version but could be added using CloudFront and S3.
+
+## Next Steps
+
+1. Implement Terraform state management using s3 and dynamoDB
+2. Provision infrastructure with terraform apply and Github Actions
+3. Implement the AI component with GPU support 
+4. Add the frontend deployment using CloudFront and S3 
+5. Enhance security with AWS WAF and Shield 
+6. Implement blue/green deployments for zero-downtime updates 
+7. Improve automated testing for infrastructure 
+8. Implement cost optimization strategies 
+9. Create a disaster recovery plan
