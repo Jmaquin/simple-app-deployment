@@ -12,8 +12,8 @@ env:
   TF_VERSION: 1.12.1
 
 jobs:
-  lint:
-    name: Lint
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,10 +29,20 @@ jobs:
         run: terraform fmt -check -recursive
         working-directory: ./terraform
 
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false
+        working-directory: ./terraform
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+        working-directory: ./terraform
+
   test-vpc:
     name: Test VPC Module
     runs-on: ubuntu-latest
-    needs: lint
+    needs: validate
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,11 +55,6 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init -backend=false
-        working-directory: ./terraform/modules/vpc
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate
         working-directory: ./terraform/modules/vpc
 
       - name: Run VPC Module Tests
@@ -60,7 +65,7 @@ jobs:
   test-rds:
     name: Test RDS Module
     runs-on: ubuntu-latest
-    needs: lint
+    needs: validate
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -73,11 +78,6 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init -backend=false
-        working-directory: ./terraform/modules/rds
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate
         working-directory: ./terraform/modules/rds
 
       - name: Run RDS Module Tests
@@ -88,7 +88,7 @@ jobs:
   test-ecs:
     name: Test ECS Module
     runs-on: ubuntu-latest
-    needs: lint
+    needs: validate
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -101,11 +101,6 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init -backend=false
-        working-directory: ./terraform/modules/ecs
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate
         working-directory: ./terraform/modules/ecs
 
       - name: Run ECS Module Tests
@@ -116,7 +111,7 @@ jobs:
   test-monitoring:
     name: Test Monitoring Module
     runs-on: ubuntu-latest
-    needs: lint
+    needs: validate
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -131,14 +126,31 @@ jobs:
         run: terraform init -backend=false
         working-directory: ./terraform/modules/monitoring
 
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate
-        working-directory: ./terraform/modules/monitoring
-
       - name: Run Monitoring Module Tests
         id: test
         run: terraform test
         working-directory: ./terraform/modules/monitoring
 
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    needs: [test-vpc, test-rds, test-ecs, test-monitoring]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file=environments/dev.tfvars
+        working-directory: ./terraform
 

@@ -54,6 +54,24 @@ variable "db_instance_class" {
   default     = "db.t3.medium"
 }
 
+variable "db_allocated_storage" {
+  description = "Allocated storage for the RDS instance (in GB)"
+  type        = number
+  default     = 20
+}
+
+variable "db_max_allocated_storage" {
+  description = "Maximum allocated storage for the RDS instance (in GB)"
+  type        = number
+  default     = 100
+}
+
+variable "db_multi_az" {
+  description = "Whether to enable Multi-AZ deployment"
+  type        = bool
+  default     = true
+}
+
 # ECS Variables for Backend API
 variable "backend_container_image" {
   description = "Container image for the backend API"
